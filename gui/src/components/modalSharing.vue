@@ -92,22 +92,31 @@ export default {
       .querySelector("#QRCodeImport")
       .addEventListener("change", this.handleFileChange, false);
     this.clipboard = new ClipboardJS(".sharingAddressTag");
+    this.lastToastTime = 0;
     this.clipboard.on("success", (e) => {
-      this.$buefy.toast.open({
-        message: this.$t("common.success"),
-        type: "is-primary",
-        position: "is-top",
-        queue: false,
-      });
+      const now = Date.now();
+      if (now - this.lastToastTime > 1000) {
+        this.lastToastTime = now;
+        this.$buefy.toast.open({
+          message: this.$t("common.success"),
+          type: "is-primary",
+          position: "is-top",
+          queue: false,
+        });
+      }
       e.clearSelection();
     });
     this.clipboard.on("error", (e) => {
-      this.$buefy.toast.open({
-        message: this.$t("common.fail") + ", error:" + e.toLocaleString(),
-        type: "is-warning",
-        position: "is-top",
-        queue: false,
-      });
+      const now = Date.now();
+      if (now - this.lastToastTime > 1000) {
+        this.lastToastTime = now;
+        this.$buefy.toast.open({
+          message: this.$t("common.fail") + ", error:" + e.toLocaleString(),
+          type: "is-warning",
+          position: "is-top",
+          queue: false,
+        });
+      }
     });
 
     let add = this.sharingAddress;
