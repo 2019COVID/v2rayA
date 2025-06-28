@@ -7,7 +7,7 @@
       <div><canvas id="canvas" class="qrcode"></canvas></div>
       <div class="tags has-addons is-centered" style="position: relative">
         <span
-          class="tag is-rounded is-dark sharingAddressTag"
+          class="tag is-rounded is-dark sharingAddressTag-short"
           style="position: relative"
           :data-clipboard-text="sharingAddress"
         >
@@ -18,7 +18,7 @@
         </span>
         <div id="tag-cover-text">{{ $t("operations.copyLink") }}</div>
         <span
-          class="tag is-rounded is-primary sharingAddressTag"
+          class="tag is-rounded is-primary sharingAddressTag-full"
           style="position: relative"
           :data-clipboard-text="sharingAddress"
         >
@@ -91,7 +91,7 @@ export default {
     document
       .querySelector("#QRCodeImport")
       .addEventListener("change", this.handleFileChange, false);
-    this.clipboard = new ClipboardJS(".sharingAddressTag");
+    this.clipboard = new ClipboardJS(".sharingAddressTag-short, .sharingAddressTag-full");
     this.lastToastTime = 0;
     this.clipboard.on("success", (e) => {
       const now = Date.now();
@@ -133,7 +133,7 @@ export default {
         // console.log("QRCode has been generated successfully!");
       }
     );
-    let targets = document.querySelectorAll(".sharingAddressTag");
+    let targets = document.querySelectorAll(".sharingAddressTag-short, .sharingAddressTag-full");
     let covers = document.querySelectorAll(".tag-cover");
     let coverText = document.querySelector("#tag-cover-text");
     let enter = () => {

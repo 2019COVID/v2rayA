@@ -711,7 +711,7 @@ import { locateServer, handleResponse } from "@/assets/js/utils";
 import CONST from "@/assets/js/const";
 import QRCode from "qrcode";
 import { Decoder } from "@nuintun/qrcode";
-import ClipboardJS from "clipboard";
+// ClipboardJS is now handled by modalSharing component
 import { Base64 } from "js-base64";
 import ModalServer from "@/components/modalServer";
 import ModalSubscription from "@/components/modalSubcription";
@@ -778,7 +778,7 @@ export default {
       },
       connectedServerInfo: [],
       overHeight: false,
-      clipboard: null,
+      lastToastTime: 0,
     };
   },
   computed: {
@@ -843,30 +843,13 @@ export default {
     });
   },
   beforeDestroy() {
-    this.clipboard.destroy();
+    // clipboard is now managed by modalSharing component
   },
   mounted() {
     document
       .querySelector("#QRCodeImport")
       .addEventListener("change", this.handleFileChange, false);
-    this.clipboard = new ClipboardJS(".sharingAddressTag");
-    this.clipboard.on("success", (e) => {
-      this.$buefy.toast.open({
-        message: this.$t("common.success"),
-        type: "is-primary",
-        position: "is-top",
-        queue: false,
-      });
-      e.clearSelection();
-    });
-    this.clipboard.on("error", (e) => {
-      this.$buefy.toast.open({
-        message: this.$t("common.fail") + ", error:" + e.toLocaleString(),
-        type: "is-warning",
-        position: "is-top",
-        queue: false,
-      });
-    });
+    // clipboard functionality is now managed by modalSharing component
     const that = this;
     let scrollTimer = null;
     window.addEventListener("scroll", (e) => {
@@ -994,12 +977,16 @@ export default {
       });
       // console.log(file);
       if (!file.type.match(/image\/.*/)) {
-        this.$buefy.toast.open({
-          message: this.$t("import.qrcodeError"),
-          type: "is-warning",
-          position: "is-top",
-          queue: false,
-        });
+        const now = Date.now();
+        if (now - this.lastToastTime > 1000) {
+          this.lastToastTime = now;
+          this.$buefy.toast.open({
+            message: this.$t("import.qrcodeError"),
+            type: "is-warning",
+            position: "is-top",
+            queue: false,
+          });
+        }
         return;
       }
       const reader = new FileReader();
@@ -1016,12 +1003,16 @@ export default {
           })
           .catch((error) => {
             console.error(error);
-            that.$buefy.toast.open({
-              message: that.$t("import.qrcodeError"),
-              type: "is-warning",
-              position: "is-top",
-              queue: false,
-            });
+            const now = Date.now();
+            if (now - that.lastToastTime > 1000) {
+              that.lastToastTime = now;
+              that.$buefy.toast.open({
+                message: that.$t("import.qrcodeError"),
+                type: "is-warning",
+                position: "is-top",
+                queue: false,
+              });
+            }
           });
       };
       reader.readAsDataURL(file);
@@ -1231,22 +1222,30 @@ export default {
         if (res.data.code === "SUCCESS") {
           this.refreshTableData(res.data.data.touch, res.data.data.running);
           this.updateConnectView();
-          this.$buefy.toast.open({
-            message: this.$t("common.success"),
-            type: "is-primary",
-            position: "is-top",
-            queue: false,
-          });
+          const now = Date.now();
+          if (now - this.lastToastTime > 1000) {
+            this.lastToastTime = now;
+            this.$buefy.toast.open({
+              message: this.$t("common.success"),
+              type: "is-primary",
+              position: "is-top",
+              queue: false,
+            });
+          }
           this.showModalImport = false;
           this.showModalImportInBatch = false;
           this.importWhat = "";
         } else {
-          this.$buefy.toast.open({
-            message: res.data.message,
-            type: "is-warning",
-            position: "is-top",
-            queue: false,
-          });
+          const now = Date.now();
+          if (now - this.lastToastTime > 1000) {
+            this.lastToastTime = now;
+            this.$buefy.toast.open({
+              message: res.data.message,
+              type: "is-warning",
+              position: "is-top",
+              queue: false,
+            });
+          }
         }
       });
     },
@@ -1268,13 +1267,17 @@ export default {
           this.checkedRows = [];
           this.updateConnectView();
         } else {
-          this.$buefy.toast.open({
-            message: res.data.message,
-            type: "is-warning",
-            position: "is-top",
-            duration: 5000,
-            queue: false,
-          });
+          const now = Date.now();
+          if (now - this.lastToastTime > 1000) {
+            this.lastToastTime = now;
+            this.$buefy.toast.open({
+              message: res.data.message,
+              type: "is-warning",
+              position: "is-top",
+              duration: 5000,
+              queue: false,
+            });
+          }
         }
       });
     },
@@ -1319,13 +1322,17 @@ export default {
                 this.updateConnectView();
               });
             } else {
-              this.$buefy.toast.open({
-                message: res.data.message,
-                type: "is-warning",
-                position: "is-top",
-                duration: 5000,
-                queue: false,
-              });
+              const now = Date.now();
+              if (now - this.lastToastTime > 1000) {
+                this.lastToastTime = now;
+                this.$buefy.toast.open({
+                  message: res.data.message,
+                  type: "is-warning",
+                  position: "is-top",
+                  duration: 5000,
+                  queue: false,
+                });
+              }
               this.deleteSelectedServers();
             }
           }),
@@ -1353,13 +1360,17 @@ export default {
             });
             this.updateConnectView();
           } else {
-            this.$buefy.toast.open({
-              message: res.data.message,
-              type: "is-warning",
-              position: "is-top",
-              duration: 5000,
-              queue: false,
-            });
+            const now = Date.now();
+            if (now - this.lastToastTime > 1000) {
+              this.lastToastTime = now;
+              this.$buefy.toast.open({
+                message: res.data.message,
+                type: "is-warning",
+                position: "is-top",
+                duration: 5000,
+                queue: false,
+              });
+            }
           }
         });
       }
@@ -1381,13 +1392,17 @@ export default {
       this.checkedRows.forEach((x) => (x.pingLatency = "testing...")); //refresh
       // this.checkedRows = [];
       let timerTip = setTimeout(() => {
-        this.$buefy.toast.open({
-          message: this.$t("latency.message"),
-          type: "is-primary",
-          position: "is-top",
-          duration: 5000,
-          queue: false,
-        });
+        const now = Date.now();
+        if (now - this.lastToastTime > 1000) {
+          this.lastToastTime = now;
+          this.$buefy.toast.open({
+            message: this.$t("latency.message"),
+            type: "is-primary",
+            position: "is-top",
+            duration: 5000,
+            queue: false,
+          });
+        }
       }, 10 * 1200);
       this.$axios({
         url: apiRoot + (ping ? "/pingLatency" : "/httpLatency"),
@@ -1408,13 +1423,17 @@ export default {
               this.updateConnectView();
             },
             () => {
-              this.$buefy.toast.open({
-                message: res.data.message,
-                type: "is-warning",
-                position: "is-top",
-                queue: false,
-                duration: 5000,
-              });
+              const now = Date.now();
+              if (now - this.lastToastTime > 1000) {
+                this.lastToastTime = now;
+                this.$buefy.toast.open({
+                  message: res.data.message,
+                  type: "is-warning",
+                  position: "is-top",
+                  queue: false,
+                  duration: 5000,
+                });
+              }
               this.checkedRows.forEach((x) => (x.pingLatency = ""));
             }
           );
@@ -1490,13 +1509,17 @@ export default {
         handleResponse(res, this, () => {
           this.refreshTableData(res.data.data.touch, res.data.data.running);
           this.updateConnectView();
-          this.$buefy.toast.open({
-            message: this.$t("common.success"),
-            type: "is-primary",
-            position: "is-top",
-            duration: 5000,
-            queue: false,
-          });
+          const now = Date.now();
+          if (now - this.lastToastTime > 1000) {
+            this.lastToastTime = now;
+            this.$buefy.toast.open({
+              message: this.$t("common.success"),
+              type: "is-primary",
+              position: "is-top",
+              duration: 5000,
+              queue: false,
+            });
+          }
         });
       });
     },
@@ -1527,13 +1550,17 @@ export default {
         timeout: 0,
       }).then((res) => {
         handleResponse(res, this, () => {
-          this.$buefy.toast.open({
-            message: this.$t("common.success"),
-            type: "is-primary",
-            position: "is-top",
-            duration: 3000,
-            queue: false,
-          });
+          const now = Date.now();
+          if (now - this.lastToastTime > 1000) {
+            this.lastToastTime = now;
+            this.$buefy.toast.open({
+              message: this.$t("common.success"),
+              type: "is-primary",
+              position: "is-top",
+              duration: 3000,
+              queue: false,
+            });
+          }
           this.showModalServer = false;
           this.refreshTableData(res.data.data.touch, res.data.data.running);
           this.updateConnectView();
@@ -1554,13 +1581,17 @@ export default {
         },
       }).then((res) => {
         handleResponse(res, this, () => {
-          this.$buefy.toast.open({
-            message: this.$t("common.success"),
-            type: "is-primary",
-            position: "is-top",
-            duration: 3000,
-            queue: false,
-          });
+          const now = Date.now();
+          if (now - this.lastToastTime > 1000) {
+            this.lastToastTime = now;
+            this.$buefy.toast.open({
+              message: this.$t("common.success"),
+              type: "is-primary",
+              position: "is-top",
+              duration: 3000,
+              queue: false,
+            });
+          }
           this.showModalSubscription = false;
           this.refreshTableData(res.data.data.touch, res.data.data.running);
           this.updateConnectView();
